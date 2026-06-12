@@ -1,4 +1,4 @@
 node_modules/
-database/rastreio.db
 .env
+.env.local
 *.log

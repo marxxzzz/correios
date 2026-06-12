@@ -43,6 +43,9 @@
   <label>Prazo de entrega (dias úteis)</label>
   <input id="dias" type="number" min="1" max="30" value="7">
 
+  <label>Senha de acesso</label>
+  <input id="senha" type="password" placeholder="Senha de admin">
+
   <button onclick="gerar()">Gerar código</button>
   <div class="erro" id="erro"></div>
 
@@ -57,6 +60,12 @@
 async function gerar() {
   document.getElementById('erro').textContent = '';
   document.getElementById('resultado').style.display = 'none';
+
+  const senha = document.getElementById('senha').value;
+  if (!senha) {
+    document.getElementById('erro').textContent = 'Informe a senha de acesso.';
+    return;
+  }
 
   const body = {
     servico: document.getElementById('servico').value,
@@ -73,7 +82,10 @@ async function gerar() {
   try {
     const r = await fetch('/api/rastreio', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa('admin:' + senha)
+      },
       body: JSON.stringify(body)
     });
     const d = await r.json();
