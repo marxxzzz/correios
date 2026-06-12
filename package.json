@@ -1,0 +1,15 @@
+{
+  "name": "rastreamento-correios",
+  "version": "1.0.0",
+  "description": "Sistema de rastreamento de objetos postais",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node database/seed.js",
+    "setup": "node database/seed.js && node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sql.js": "^1.12.0"
+  }
+}

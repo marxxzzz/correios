@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerar Código de Rastreio</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; padding: 40px 16px; }
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.12); padding: 32px; width: 100%; max-width: 480px; }
+  h1 { font-size: 1.2rem; color: #003087; margin-bottom: 24px; }
+  label { display: block; font-size: .85rem; font-weight: bold; margin-bottom: 4px; color: #333; }
+  input, select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: .95rem; margin-bottom: 16px; }
+  button { width: 100%; padding: 12px; background: #003087; color: #fff; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+  button:hover { background: #00489c; }
+  #resultado { margin-top: 24px; display: none; }
+  #resultado .codigo { font-size: 1.4rem; font-weight: bold; color: #003087; letter-spacing: 2px; text-align: center; padding: 16px; background: #eef3ff; border-radius: 4px; }
+  #resultado .link { margin-top: 12px; font-size: .85rem; word-break: break-all; text-align: center; }
+  #resultado .link a { color: #003087; }
+  #resultado .copy-btn { margin-top: 8px; width: 100%; padding: 8px; background: #e8f0fe; color: #003087; border: 1px solid #b0c4f8; border-radius: 4px; cursor: pointer; font-size: .85rem; }
+  #resultado .copy-btn:hover { background: #d0e2ff; }
+  .erro { color: #c00; margin-top: 12px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🚚 Gerar Código de Rastreio</h1>
+
+  <label>Serviço</label>
+  <select id="servico">
+    <option value="SEDEX">SEDEX</option>
+    <option value="PAC">PAC</option>
+    <option value="SEDEX10">SEDEX 10</option>
+    <option value="SEDEX12">SEDEX 12</option>
+  </select>
+
+  <label>Cidade de origem</label>
+  <input id="origem" type="text" placeholder="Ex: SAO PAULO - SP" value="SAO PAULO - SP">
+
+  <label>Cidade de destino</label>
+  <input id="destino" type="text" placeholder="Ex: BELO HORIZONTE - MG">
+
+  <label>Prazo de entrega (dias úteis)</label>
+  <input id="dias" type="number" min="1" max="30" value="7">
+
+  <button onclick="gerar()">Gerar código</button>
+  <div class="erro" id="erro"></div>
+
+  <div id="resultado">
+    <div class="codigo" id="codigo-texto"></div>
+    <div class="link"><a id="link-rastreio" target="_blank"></a></div>
+    <button class="copy-btn" onclick="copiar()">Copiar link para o cliente</button>
+  </div>
+</div>
+
+<script>
+async function gerar() {
+  document.getElementById('erro').textContent = '';
+  document.getElementById('resultado').style.display = 'none';
+
+  const body = {
+    servico: document.getElementById('servico').value,
+    origem:  document.getElementById('origem').value.trim().toUpperCase(),
+    destino: document.getElementById('destino').value.trim().toUpperCase(),
+    dias:    parseInt(document.getElementById('dias').value)
+  };
+
+  if (!body.destino) {
+    document.getElementById('erro').textContent = 'Informe a cidade de destino.';
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/rastreio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.erro || 'Erro desconhecido');
+
+    const url = window.location.origin + '/rastreio.html?codigo=' + d.codigo;
+    document.getElementById('codigo-texto').textContent = d.codigo;
+    const a = document.getElementById('link-rastreio');
+    a.href = url;
+    a.textContent = url;
+    document.getElementById('resultado').style.display = 'block';
+  } catch (e) {
+    document.getElementById('erro').textContent = 'Erro: ' + e.message;
+  }
+}
+
+function copiar() {
+  const url = document.getElementById('link-rastreio').href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ Link copiado!';
+    setTimeout(() => btn.textContent = 'Copiar link para o cliente', 2000);
+  });
+}
+</script>
+</body>
+</html>
