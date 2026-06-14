@@ -40,11 +40,12 @@ async function storageSet(key, value) {
 function agoraMinusDois() {
   const d = new Date();
   d.setMinutes(d.getMinutes() - 2);
-  const yyyy = d.getFullYear();
-  const mm   = String(d.getMonth() + 1).padStart(2, '0');
-  const dd   = String(d.getDate()).padStart(2, '0');
-  const hh   = String(d.getHours()).padStart(2, '0');
-  const mi   = String(d.getMinutes()).padStart(2, '0');
+  const brt = new Date(d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const yyyy = brt.getFullYear();
+  const mm   = String(brt.getMonth() + 1).padStart(2, '0');
+  const dd   = String(brt.getDate()).padStart(2, '0');
+  const hh   = String(brt.getHours()).padStart(2, '0');
+  const mi   = String(brt.getMinutes()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
 }
 
