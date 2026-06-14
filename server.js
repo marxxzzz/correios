@@ -13,18 +13,25 @@ let _redis = null;
 function getRedis() {
   if (!_redis) {
     const { Redis } = require('@upstash/redis');
-    _redis = Redis.fromEnv();
+    _redis = new Redis({
+      url:   process.env.KV_REST_API_URL   || process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
   }
   return _redis;
 }
 
+function temRedis() {
+  return !!(process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL);
+}
+
 async function storageGet(key) {
-  if (process.env.UPSTASH_REDIS_REST_URL) return getRedis().get(key);
+  if (temRedis()) return getRedis().get(key);
   return _mem.get(key) ?? null;
 }
 
 async function storageSet(key, value) {
-  if (process.env.UPSTASH_REDIS_REST_URL) await getRedis().set(key, value);
+  if (temRedis()) await getRedis().set(key, value);
   else _mem.set(key, value);
 }
 
