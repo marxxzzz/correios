@@ -288,7 +288,7 @@ app.use(async (_req, _res, next) => {
   next();
 });
 
-const ADMIN_SENHA = process.env.ADMIN_SENHA || 'admin123';
+const ADMIN_SENHA = process.env.ADMIN_SENHA || 'Rastr0@2026#!';
 
 function autenticarAdmin(req, res, next) {
   const auth = req.headers.authorization || '';
