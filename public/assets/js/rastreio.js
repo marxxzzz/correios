@@ -37,6 +37,26 @@
     return v.replace(/\D/g, '');
   }
 
+  function validarCPF(cpf) {
+    cpf = String(cpf).replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    var soma = 0;
+    for (var i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+    var r = soma % 11;
+    if ((r < 2 ? 0 : 11 - r) !== parseInt(cpf[9])) return false;
+    soma = 0;
+    for (var j = 0; j < 10; j++) soma += parseInt(cpf[j]) * (11 - j);
+    r = soma % 11;
+    return (r < 2 ? 0 : 11 - r) === parseInt(cpf[10]);
+  }
+
+  function setCpfError(msg) {
+    var el = document.getElementById('cpf-error');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.classList.toggle('hidden', !msg);
+  }
+
   function getCpfFromURL() {
     var p = new URLSearchParams(window.location.search);
     return normalizarCpf(p.get('cpf') || '');
@@ -155,6 +175,7 @@
         this.value = mascaraCpf(this.value);
         var diff = this.value.length - prev;
         this.setSelectionRange(sel + diff, sel + diff);
+        setCpfError('');
       });
     }
 
@@ -162,7 +183,11 @@
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         var cpf = input ? normalizarCpf(input.value) : '';
-        if (cpf.length !== 11) return;
+        if (!validarCPF(cpf)) {
+          setCpfError('CPF inválido. Verifique os dígitos e tente novamente.');
+          return;
+        }
+        setCpfError('');
         var url = new URL(window.location.href);
         url.searchParams.set('cpf', cpf);
         window.history.pushState({}, '', url);
@@ -171,7 +196,7 @@
     }
 
     var cpf = getCpfFromURL();
-    if (cpf.length === 11) {
+    if (validarCPF(cpf)) {
       if (input) input.value = mascaraCpf(cpf);
       buscar(cpf);
     } else {

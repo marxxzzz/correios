@@ -58,7 +58,7 @@ const CODIGOS = [
     ]
   },
   {
-    codigo: 'RX555444333BR', servico: 'PAC', cpf: '55566677783',
+    codigo: 'RX555444333BR', servico: 'PAC', cpf: '55566677720',
     origem: 'SAO PAULO - SP', destino: 'BELEM - PA', etiqueta_em: null,
     config: [
       { dia:  0, hora: '16:40', tipo: 'ETIQUETA',     descricao: 'Etiqueta emitida.',                             local: 'BR',                                            detalhe: 'Aguardando postagem pelo remetente' },

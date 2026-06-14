@@ -60,6 +60,21 @@ function formatarDataEvento(dtBase, diasOffset, hora) {
   return `${dd}/${mm}/${yyyy} ${hora}`;
 }
 
+// ---- Validação de CPF (Receita Federal) ----
+
+function validarCPF(cpf) {
+  cpf = String(cpf).replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+  let r = soma % 11;
+  if ((r < 2 ? 0 : 11 - r) !== parseInt(cpf[9])) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+  r = soma % 11;
+  return (r < 2 ? 0 : 11 - r) === parseInt(cpf[10]);
+}
+
 // ---- Geração de código ----
 
 const PREFIXO_SERVICO = { SEDEX: 'AD', PAC: 'PM', SEDEX10: 'AR', SEDEX12: 'AK' };
@@ -257,7 +272,7 @@ function dadosSeed() {
       ]
     },
     {
-      codigo: 'RX555444333BR', servico: 'PAC', cpf: '55566677783',
+      codigo: 'RX555444333BR', servico: 'PAC', cpf: '55566677720',
       origem: 'SAO PAULO - SP', destino: 'BELEM - PA', etiqueta_em: null,
       config: [
         { dia:  0, hora: '16:40', tipo: 'ETIQUETA',     descricao: 'Etiqueta emitida.',                             local: 'BR',                                            detalhe: 'Aguardando postagem pelo remetente' },
@@ -352,8 +367,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── GET: consulta por CPF — cria código automaticamente no 1º acesso ─────────
 app.get('/api/rastreio/cpf/:cpf', async (req, res) => {
   const cpf = req.params.cpf.replace(/\D/g, '');
-  if (!/^\d{11}$/.test(cpf)) {
-    return res.status(400).json({ erro: 'CPF inválido. Informe os 11 dígitos.' });
+  if (!validarCPF(cpf)) {
+    return res.status(400).json({ erro: 'CPF inválido. Verifique os dígitos e tente novamente.' });
   }
   try {
     // Já tem código → retorna existente (não gera novo)
