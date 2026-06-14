@@ -457,6 +457,20 @@ app.get('/api/admin/envios', autenticarAdmin, async (req, res) => {
   }
 });
 
+// ── Status / health check ─────────────────────────────────────────────────────
+app.get('/api/status', async (_req, res) => {
+  const redis = temRedis();
+  let redisOk = false;
+  if (redis) {
+    try { await getRedis().set('_ping', '1'); redisOk = true; } catch (_) {}
+  }
+  const todos = await storageGet('todos_codigos') || [];
+  res.json({
+    storage: redis ? (redisOk ? 'redis:ok' : 'redis:erro') : 'memoria',
+    codigos_salvos: todos.length,
+  });
+});
+
 // ── Rota amigável ─────────────────────────────────────────────────────────────
 app.get('/rastreio/:codigo', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'rastreio.html'));
