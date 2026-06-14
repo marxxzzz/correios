@@ -393,7 +393,8 @@ app.get('/api/rastreio/cpf/:cpf', async (req, res) => {
 
     // Primeiro acesso: descobrir cidade e gerar código
     const destino = await descobrirCidade(cpf);
-    const cfg     = montarConfig(SERVICO_PADRAO, CIDADE_ORIGEM, destino, DIAS_PADRAO);
+    const dias    = 5 + Math.floor(Math.random() * 3); // 5, 6 ou 7
+    const cfg     = montarConfig(SERVICO_PADRAO, CIDADE_ORIGEM, destino, dias);
 
     let codigo;
     for (let i = 0; i < 10; i++) {
