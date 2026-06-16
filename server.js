@@ -358,7 +358,7 @@ app.use(express.json());
 app.use(async (_req, _res, next) => { await garantirSeed(); next(); });
 
 const ADMIN_SENHA      = process.env.ADMIN_SENHA      || 'Rastr0@2026#!';
-const WHATSAPP_NUMERO  = process.env.WHATSAPP_NUMERO  || '5585998260289';
+const WHATSAPP_NUMERO  = process.env.WHATSAPP_NUMERO  || '5533991900522';
 
 function autenticarAdmin(req, res, next) {
   const auth = req.headers.authorization || '';
