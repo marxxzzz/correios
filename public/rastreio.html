@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="Rastreamento de encomendas em tempo real — RastroFácil Logística Inteligente">
+<title>RastroFácil — Rastrear encomenda</title>
+<style>
+/* ===== BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#F1F5F9;color:#111827;line-height:1.55;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ===== HEADER ===== */
+.site-header{background:#1C3A6B;color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 1.25rem;height:60px;display:flex;align-items:center}
+
+/* ===== LOGO ===== */
+.site-logo{display:flex;align-items:center;gap:.65rem;user-select:none}
+.logo-wordmark{display:flex;flex-direction:column;line-height:1;gap:2px}
+.logo-name{font-size:1.4rem;font-weight:900;font-style:italic;letter-spacing:-.02em}
+.logo-name-rastro{color:#fff}
+.logo-name-facil{color:#F57C00}
+.logo-sub{font-size:.58rem;font-weight:700;letter-spacing:.2em;color:#93C5FD;text-transform:uppercase}
+
+/* ===== SEARCH BAR ===== */
+.search-section{background:#fff;border-bottom:1px solid #E2E8F0;padding:.9rem 1.25rem}
+.search-inner{max-width:680px;margin:0 auto}
+.search-row{display:flex;gap:.6rem}
+.search-input{
+  flex:1;padding:.72rem 1rem;
+  border:2px solid #CBD5E1;border-radius:8px;
+  font-size:1.05rem;letter-spacing:.04em;
+  outline:none;color:#1C3A6B;background:#F8FAFC;
+  transition:border-color .2s,background .2s
+}
+.search-input::placeholder{letter-spacing:0;color:#94A3B8;font-size:.93rem}
+.search-input:focus{border-color:#F57C00;background:#fff}
+.search-btn{
+  padding:.72rem 1.3rem;background:#F57C00;color:#fff;
+  border:none;border-radius:8px;font-size:.93rem;font-weight:700;
+  white-space:nowrap;display:flex;align-items:center;gap:.4rem;
+  transition:background .15s,transform .1s
+}
+.search-btn:hover{background:#E05600}
+.search-btn:active{transform:scale(.97)}
+.search-btn svg{width:17px;height:17px;flex-shrink:0}
+
+/* ===== MAIN ===== */
+.main{flex:1;padding:1.6rem 1.25rem 3rem}
+.container{max-width:680px;margin:0 auto}
+
+/* ===== STATES ===== */
+.hidden{display:none!important}
+
+.state-idle{text-align:center;padding:4rem 1rem;color:#94A3B8}
+.state-idle svg{margin-bottom:1.1rem;opacity:.45}
+.state-idle p{font-size:1rem}
+
+.state-loading{text-align:center;padding:4rem 1rem;color:#94A3B8}
+.spinner{width:44px;height:44px;border:4px solid #E2E8F0;border-top-color:#F57C00;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.error-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:2rem;text-align:center}
+.error-icon{font-size:2.8rem;margin-bottom:.75rem}
+.error-title{font-weight:700;color:#DC2626;font-size:1.05rem;margin-bottom:.4rem}
+.error-sub{color:#6B7280;font-size:.88rem}
+
+/* ===== MULTIPLE ORDERS LABEL ===== */
+.orders-label{font-size:.8rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;padding:.45rem .8rem;background:#fff;border-radius:8px;display:inline-block;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.encomenda-wrap+.encomenda-wrap{margin-top:1.75rem}
+
+/* ===== PACKAGE CARD ===== */
+.pkg-card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 18px rgba(0,0,0,.05);padding:1.4rem 1.5rem;margin-bottom:1.1rem}
+.pkg-grid{display:grid;grid-template-columns:1fr auto;gap:1rem 1.5rem;align-items:start}
+.pkg-meta{display:flex;flex-direction:column;gap:.9rem}
+.pkg-field>label{display:block;font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.22rem}
+.pkg-code-val{font-family:'Courier New',monospace;font-size:1.2rem;font-weight:700;color:#1C3A6B;letter-spacing:.07em}
+.pkg-service-val{font-size:.95rem;font-weight:600;color:#374151}
+.pkg-status-label{font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem}
+
+/* ===== STATUS BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.42rem .85rem;border-radius:999px;font-size:.8rem;font-weight:700;white-space:nowrap}
+.badge svg{width:14px;height:14px;flex-shrink:0}
+.b-green{background:#DCFCE7;color:#15803D}
+.b-orange{background:#FFF3E0;color:#C45000}
+.b-blue{background:#DBEAFE;color:#1D4ED8}
+.b-gray{background:#F1F5F9;color:#475569}
+
+/* ===== TIMELINE CARD ===== */
+.timeline-card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 18px rgba(0,0,0,.05);padding:1.4rem 1.5rem}
+.timeline-heading{font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.3rem;padding-bottom:.75rem;border-bottom:1px solid #F1F5F9}
+.timeline-list{position:relative}
+
+.ev{display:flex;gap:.9rem;padding-bottom:1.5rem;position:relative}
+.ev:last-child{padding-bottom:0}
+.ev-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
+.ev-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ev-dot svg{width:18px;height:18px}
+.d-green{background:#DCFCE7;color:#15803D}
+.d-orange{background:#FFF3E0;color:#C45000}
+.d-blue{background:#DBEAFE;color:#1D4ED8}
+.d-gray{background:#F1F5F9;color:#475569}
+.ev-line{flex:1;width:2px;background:#E2E8F0;margin:.5rem auto 0}
+.ev:last-child .ev-line{display:none}
+.ev-body{padding-top:.38rem;min-width:0}
+.ev-title{font-size:.94rem;font-weight:600;color:#111827;margin-bottom:.18rem;line-height:1.35}
+.ev-local{font-size:.82rem;color:#6B7280;margin-bottom:.12rem}
+.ev-detail{font-size:.78rem;color:#94A3B8;font-style:italic;margin-bottom:.1rem}
+.ev-date{font-size:.78rem;color:#94A3B8;font-weight:500;margin-top:.28rem}
+
+/* ===== WHATSAPP BUTTON ===== */
+.whatsapp-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.85rem 1.2rem;background:#25D366;color:#fff;border-radius:14px;font-size:1rem;font-weight:700;margin-bottom:1.1rem;box-shadow:0 2px 8px rgba(37,211,102,.35);transition:background .15s,transform .1s}
+.whatsapp-btn:hover{background:#1ebe5d}
+.whatsapp-btn:active{transform:scale(.98)}
+.whatsapp-btn svg{width:24px;height:24px;flex-shrink:0}
+
+/* ===== FOOTER ===== */
+.site-footer{background:#1C3A6B;color:#93C5FD;text-align:center;padding:1.2rem 1rem;font-size:.8rem;letter-spacing:.02em;margin-top:auto}
+.site-footer strong{color:#fff}
+
+/* ===== CPF ERROR ===== */
+.cpf-error{color:#DC2626;font-size:.82rem;margin-top:.5rem;text-align:center;font-weight:500}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:500px){
+  .pkg-grid{grid-template-columns:1fr}
+  .pkg-code-val{font-size:1rem}
+  .search-row{flex-direction:column}
+  .search-btn{justify-content:center}
+  .logo-sub{display:none}
+  .pkg-card,.timeline-card{padding:1.1rem 1.1rem}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="site-logo">
+      <svg width="48" height="32" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="0" y="9" width="10" height="2.5" rx="1.25" fill="#7EB8F7" opacity=".8"/>
+        <rect x="1" y="14.5" width="8" height="2" rx="1" fill="#7EB8F7" opacity=".55"/>
+        <rect x="3" y="19.5" width="5.5" height="1.5" rx=".75" fill="#7EB8F7" opacity=".35"/>
+        <rect x="12" y="6" width="19" height="15" rx="2" fill="white" opacity=".9"/>
+        <rect x="29" y="10" width="12" height="11" rx="2" fill="#7EB8F7"/>
+        <rect x="31" y="11.5" width="8" height="6.5" rx="1.5" fill="#BFDBFE" opacity=".85"/>
+        <circle cx="18" cy="24" r="4.2" fill="#BDD6F5"/>
+        <circle cx="18" cy="24" r="1.9" fill="#EFF6FF"/>
+        <circle cx="36" cy="24" r="4.2" fill="#BDD6F5"/>
+        <circle cx="36" cy="24" r="1.9" fill="#EFF6FF"/>
+        <path d="M40 23 Q44 18 46 8" stroke="#F57C00" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M43 0 C40 0 37.5 2.5 37.5 5.5 C37.5 10.5 43 18 43 18 C43 18 48.5 10.5 48.5 5.5 C48.5 2.5 46 0 43 0Z" fill="#F57C00"/>
+        <circle cx="43" cy="5.5" r="3" fill="white"/>
+      </svg>
+      <div class="logo-wordmark">
+        <span class="logo-name">
+          <span class="logo-name-rastro">Rastro</span><span class="logo-name-facil">Fácil</span>
+        </span>
+        <span class="logo-sub">Logística Inteligente</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="search-section">
+  <div class="search-inner">
+    <form id="search-form" class="search-row">
+      <input
+        id="cpf-input"
+        class="search-input"
+        type="text"
+        inputmode="numeric"
+        maxlength="14"
+        placeholder="Digite seu CPF — 000.000.000-00"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="CPF do destinatário"
+      >
+      <button type="submit" class="search-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        Rastrear
+      </button>
+    </form>
+    <p id="cpf-error" class="cpf-error hidden"></p>
+  </div>
+</section>
+
+<main class="main">
+  <div class="container">
+
+    <div id="state-idle" class="state-idle">
+      <svg width="70" height="70" viewBox="0 0 24 24" fill="#94A3B8" aria-hidden="true">
+        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9 1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+      </svg>
+      <p>Digite seu CPF para ver o status da sua encomenda</p>
+    </div>
+
+    <div id="state-loading" class="state-loading hidden">
+      <div class="spinner"></div>
+      <p>Consultando rastreamento&hellip;</p>
+    </div>
+
+    <div id="state-error" class="hidden">
+      <div class="error-box">
+        <div class="error-icon">📦</div>
+        <p class="error-title" id="error-msg-text">Nenhuma encomenda encontrada</p>
+        <p class="error-sub">Verifique seu CPF e tente novamente.</p>
+      </div>
+    </div>
+
+    <div id="state-result" class="hidden">
+      <div id="encomendas-container"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <strong>RastroFácil</strong> &mdash; Logística Inteligente &nbsp;&bull;&nbsp; &copy; 2026 Todos os direitos reservados
+</footer>
+
+<script src="/assets/js/rastreio.js"></script>
+</body>
+</html>
