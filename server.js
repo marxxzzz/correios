@@ -357,7 +357,8 @@ app.use(express.json());
 
 app.use(async (_req, _res, next) => { await garantirSeed(); next(); });
 
-const ADMIN_SENHA = process.env.ADMIN_SENHA || 'Rastr0@2026#!';
+const ADMIN_SENHA      = process.env.ADMIN_SENHA      || 'Rastr0@2026#!';
+const WHATSAPP_NUMERO  = process.env.WHATSAPP_NUMERO  || '5585998260289';
 
 function autenticarAdmin(req, res, next) {
   const auth = req.headers.authorization || '';
@@ -457,6 +458,11 @@ app.get('/api/admin/envios', autenticarAdmin, async (req, res) => {
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }
+});
+
+// ── Config pública (variáveis não-sensíveis para o frontend) ─────────────────
+app.get('/api/config', (_req, res) => {
+  res.json({ whatsappNumero: WHATSAPP_NUMERO });
 });
 
 // ── Status / health check ─────────────────────────────────────────────────────
