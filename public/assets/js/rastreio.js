@@ -4,7 +4,13 @@
   var whatsappNumero = '';
   var _cfgPromise = fetch('/api/config')
     .then(function (r) { return r.json(); })
-    .then(function (c) { if (c && c.whatsappNumero) whatsappNumero = c.whatsappNumero; })
+    .then(function (c) {
+      if (c && c.whatsappNumero) {
+        whatsappNumero = c.whatsappNumero;
+        var idleBtn = document.getElementById('whatsapp-idle-btn');
+        if (idleBtn) idleBtn.href = 'https://wa.me/' + whatsappNumero;
+      }
+    })
     .catch(function () {});
 
   /* ── SVG icons ───────────────────────────────────────────── */
